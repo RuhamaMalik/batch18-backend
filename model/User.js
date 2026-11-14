@@ -25,11 +25,11 @@ let userSchema = mongoose.Schema({
         enum: ['active', 'block'],
         default: 'active'
     }
-}, { timestamp: true });
+}, { timestamps: true });
 
 //////////// password hash
 
-userSchema.pre("save", async (next) => {
+userSchema.pre("save", async function (next) {
     if (!this.isModified('password')) {
         next()
     }
@@ -38,7 +38,7 @@ userSchema.pre("save", async (next) => {
 
 //////////// password compare
 
-userSchema.method.comparePswd = function (enteredPassword) {
+userSchema.methods.comparePswd = function (enteredPassword) {
     return bcrypt.compare(enteredPassword, this.password);
 }
 
