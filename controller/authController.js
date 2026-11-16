@@ -1,6 +1,8 @@
 import User from '../model/User.js'
 import _token from '../utils/token.js';
 import emailSender from '../utils/Email.js';
+import jwt from 'jsonwebtoken';
+
 
 export const signup = async (req, res) => {
     try {
@@ -27,7 +29,7 @@ export const signup = async (req, res) => {
 
         let user = await User.create(req.body);
 
-        const token = _token(user);
+        const token = _token(user, '2m');
 
         let userWithoutPassword = user.toObject();
         delete userWithoutPassword.password;
@@ -75,7 +77,7 @@ export const login = async (req, res) => {
         let userWithoutPassword = user.toObject();
         delete userWithoutPassword.password;
 
-        const token = _token(user);
+        const token = _token(user, '2m');
 
         res.status(201).json({
             success: true,
@@ -99,9 +101,11 @@ export const forgotPassword = async (req, res) => {
     try {
 
         const { email } = req.body;
+
+
         const user = await User.findOne({ email });
         if (!user) {
-            res.status(404).json({
+            return res.status(404).json({
                 success: false,
                 message: 'User not found'
             })
@@ -109,12 +113,7 @@ export const forgotPassword = async (req, res) => {
 
         //////////////// generate token
 
-        const token = jwt.sign(
-            {
-                id: user._id,
-            },
-            process.env.JWT_TOKEN,
-            { expiresIn: '1m' })
+        const token = _token({ _id: user._id }, '1h');
 
         const redirectURL = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
@@ -134,7 +133,7 @@ export const forgotPassword = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'Reset password link sent to your email'
-        })  
+        })
 
     } catch (error) {
         res.status(500).json({
@@ -147,3 +146,37 @@ export const forgotPassword = async (req, res) => {
 
 
 }
+
+export const resetPassword = async (req, res) => {
+    try {
+
+        const { password, token } = req.body;
+        const decoded = jwt.verify(token, process.env.JWT_TOKEN);
+
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            })
+        }
+
+        user.password = password;
+        user.save();
+
+        res.status(200).json({
+            success:true,
+            message:'Password updated successfuly!'
+        })
+
+
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            message: 'Reset password fail'
+        })
+    }
+}
+

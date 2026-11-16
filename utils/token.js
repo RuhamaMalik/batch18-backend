@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-let token = (user) => {
+let token = (user,time) => {
     return jwt.sign(
         {
             id: user._id,
@@ -8,7 +8,7 @@ let token = (user) => {
             email: user.email
         },
         process.env.JWT_TOKEN,
-        { expiresIn: '2m' })
+        { expiresIn: time })
 }
 
 

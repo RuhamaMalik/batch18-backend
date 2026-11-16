@@ -1,10 +1,15 @@
 import { Router } from "express";
-import { signup , login} from "../controller/authController.js";
+import { signup , login, forgotPassword, resetPassword} from "../controller/authController.js";
 
 const router = Router();
 
 router.post('/signup', signup);
 router.post('/login', login);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 
 export default router;
+
+/// `Bearer 3fgfgdfgdfgdfgdfg`
+/// ['Bearer', "3fgfgdfgdfgdfgdfg"]
