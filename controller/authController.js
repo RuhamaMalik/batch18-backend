@@ -113,7 +113,7 @@ export const forgotPassword = async (req, res) => {
 
         //////////////// generate token
 
-        const token = _token({ _id: user._id }, '1h');
+        const token = _token({ _id: user._id }, '1m');
 
         const redirectURL = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
