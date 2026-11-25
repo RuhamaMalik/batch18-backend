@@ -1,14 +1,18 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import User from "../model/User.js";
 
 export const middlewareToProtect = async (req, res, next) => {
+  console.log(" >>>>>>>>>>>>> :  middleware call");
   try {
+    
     const token = req.headers.authorization.split(" ")[1];
     if (!token) {
       res.status(401).json({ success: false, message: "Token not provided!" })
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decoded);
+    
     req.user = await User.findById(decoded.id).select("-password");
     next();
   }
